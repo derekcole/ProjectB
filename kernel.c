@@ -5,13 +5,13 @@ void readString(char* s);
 void handleInterrupt21(int ax, int bx, int cx, int dx);
 
 void main(){
-
-/*	//test printString
+/*
+	//test printString
 	printString("Hello World");
-
 */
 
-/*	test readString
+/*
+	//test readString
 	char line[80];
 	printString("Enter a line: ");
 	readString(line);
@@ -43,6 +43,7 @@ void printString(char* s){
 	for(i=0; s[i]!='\0'; i++){ 
 		printChar(s[i]);
 	}
+
 	//call princtchar over and over again until done
 	
 }
@@ -52,6 +53,7 @@ void printChar(char c){
 
 	interrupt(0x10,0x0e*0x100+c,0,0,0);
 	//interrupt to print char
+	
 }
 
 void readString (char* s)
@@ -69,8 +71,10 @@ void readString (char* s)
 		//and if it is then interrupt that stroke and decrease array size
 		if (c == 0x8){
 		if (i > 0){
-			interrupt (0x10, 0x0e * 256 + c, 0, 0, 0);
 			i--;
+			interrupt(0x10, 0xe * 256 + c, 0, 0, 0);
+			interrupt(0x10, 0xe * 256 + ' ', 0, 0, 0);
+			interrupt(0x10, 0xe * 256 + c, 0, 0, 0);
 		}
 		else
 		continue;
@@ -83,13 +87,16 @@ void readString (char* s)
 		interrupt (0x10, 0x0e * 256 + c, 0, 0, 0);	
 		}
 	}
+	//print on next line	
+	interrupt(0x10, 0xe * 256 + '\n', 0, 0, 0);
+
 	//makes sure the array size is 80 and then also sets the last two elements
 	//of the array as the last two elements should be 0xa(line feed) and
 	//0x0 (end of string)
 	if (i > 80 - 2)
 		i = 80 - 2;
 	s[i++] = 0xa;
-	s[i] = '\0';
+	s[i] = 0x0;
 	return;
 }
 
